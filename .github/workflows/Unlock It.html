@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>UnlockIt — PDF Tools + POS Bill</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#fffbea;--card:#fff;--tx:#111;--mu:#5c5c5c;--bd:#ece3b8;--ac:#f8cb46;--ac2:#fff3c2;--ok:#1a7f4b;--er:#c92a2a}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d0d0d;--card:#1a1a1a;--tx:#fff;--mu:#a8a8a8;--bd:#333;--ac:#f8cb46;--ac2:#2a2410;--ok:#4cc38a;--er:#ff7b7b}}
+[data-theme="dark"]{--bg:#0d0d0d;--card:#1a1a1a;--tx:#fff;--mu:#a8a8a8;--bd:#333;--ac:#f8cb46;--ac2:#2a2410;--ok:#4cc38a;--er:#ff7b7b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+.top{background:#f8cb46;padding:14px 16px 16px;border-radius:0 0 22px 22px;margin-bottom:6px}
+header{max-width:760px;margin:auto}
+.logo{display:inline-block;font-size:34px;font-weight:900;letter-spacing:-1.5px;line-height:1;color:#111;font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif}
+.logo b{background:#111;color:#f8cb46;padding:0 7px 3px;border-radius:9px;margin-left:2px;font-weight:900}
+header p{margin:8px 0 0;color:#111;font-size:13px;font-weight:600}
+input:focus,select:focus,textarea:focus{outline:2px solid #f8cb46;border-color:#111}
+section{border-top:4px solid #f8cb46}
+nav{display:flex;gap:6px;overflow-x:auto;padding:10px 16px;max-width:760px;margin:auto}
+nav button{white-space:nowrap;border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:8px 12px;border-radius:20px;font-size:14px;cursor:pointer}
+nav button.on{background:#111;border-color:#111;color:#f8cb46}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) nav button.on{background:#f8cb46;color:#111;border-color:#f8cb46}}
+main{max-width:760px;margin:auto;padding:0 16px 40px}
+section{display:none;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px}
+section.on{display:block}
+h2{font-size:17px;margin:0 0 4px}.mu{color:var(--mu);font-size:13px;margin:0 0 12px}
+input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit}
+label{display:block;font-size:13px;color:var(--mu);margin:10px 0 3px}
+.btn{background:#f8cb46;color:#111;border:0;padding:10px 16px;border-radius:8px;font:inherit;font-weight:600;cursor:pointer;margin-top:12px}
+.btn.s{background:var(--ac2);color:var(--tx);border:1px solid var(--bd);padding:6px 10px;margin:0;font-weight:500}
+.out{margin-top:12px;padding:10px 12px;border-radius:8px;background:var(--bg);border:1px solid var(--bd);font-size:14px;white-space:pre-wrap;word-break:break-word}
+.ok{color:var(--ok)}.er{color:var(--er)}
+.row{display:flex;gap:8px;align-items:flex-end}.row>*{flex:1}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:6px 4px;border-bottom:1px solid var(--bd);text-align:left}
+.grid{display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:700px){.grid{grid-template-columns:1fr 1fr}}
+#rc{background:#fff;color:#000;font:12px/1.35 "Courier New",monospace;padding:8px;margin:auto;border:1px dashed #999}
+#rc .c{text-align:center}#rc .b{font-weight:700}#rc hr{border:0;border-top:1px dashed #000;margin:4px 0}
+#rc .r{display:flex;justify-content:space-between;gap:6px}
+@media print{body *{visibility:hidden}#rc,#rc *{visibility:visible}#rc{position:absolute;left:0;top:0;border:0;margin:0}@page{margin:0}}
+</style>
+</head>
+<body>
+<div class="top"><header><div class="logo">unlock<b>it</b></div><p>Signature · Unlock · Compress · JPG→PDF · POS Bill — sob kichu 1 jaygay. File kothao upload hoy na.</p></header></div>
+<nav id="nav"></nav>
+<main>
+<section id="t-sig"><h2>Signature Validate</h2><p class="mu">Aadhaar, e-PAN, DigiLocker PDF-er digital signature check kore.</p>
+<input type="file" id="sf" accept=".pdf"><button class="btn" onclick="sig()">Check korun</button><div class="out" id="so" hidden></div></section>
+
+<section id="t-unl"><h2>PDF Unlock</h2><p class="mu">Password dile unlock kore notun PDF dibe (pages image hoye jabe, text select hobe na).</p>
+<input type="file" id="uf" accept=".pdf"><label>Password (Aadhaar: naam-er prothom 4 CAPS letter + janmer sal, e.g. RAHU1990)</label><input id="up" type="text" autocomplete="off">
+<button class="btn" onclick="unl()">Unlock</button><div class="out" id="uo" hidden></div></section>
+
+<section id="t-j2p"><h2>JPG → PDF</h2><p class="mu">Ek ba ekadhik image (JPG/PNG) ekta PDF-e.</p>
+<input type="file" id="jf" accept="image/*" multiple><label>Page size</label><select id="jz"><option value="a4">A4 (fit)</option><option value="img">Image-er size</option></select>
+<button class="btn" onclick="j2p()">PDF banao</button><div class="out" id="jo" hidden></div></section>
+
+<section id="t-cmp"><h2>PDF Compress</h2><p class="mu">Target size 150 KB theke 10000 KB.</p>
+<input type="file" id="cf" accept=".pdf"><div class="row"><div><label>Target size (KB)</label><input id="ck" type="number" min="150" max="10000" value="500"></div><div><label>Password (jodi thake)</label><input id="cp" autocomplete="off"></div></div>
+<button class="btn" onclick="cmp()">Compress</button><div class="out" id="co" hidden></div></section>
+
+<section id="t-pos"><div class="grid"><div>
+<h2>POS Bill</h2><p class="mu">Thermal printer size-e bill.</p>
+<label>Dokaner naam</label><input id="sn" value="My Shop"><label>Thikana / Phone</label><textarea id="sa" rows="2">Kolkata, West Bengal&#10;Ph: 98XXXXXXXX</textarea>
+<div class="row"><div><label>GSTIN (optional)</label><input id="sg"></div><div><label>Paper</label><select id="sw"><option value="58">58 mm</option><option value="80" selected>80 mm</option></select></div></div>
+<div class="row"><div><label>GST %</label><input id="gp" type="number" value="0" min="0"></div><div><label>Discount ₹</label><input id="dc" type="number" value="0" min="0"></div></div>
+<label>Footer</label><input id="sf2" value="Dhonyobad! Abar asben."><label>Customer (optional)</label><input id="cu">
+<h2 style="margin-top:16px">Item add</h2>
+<div class="row"><div style="flex:2"><label>Item</label><input id="in"></div><div><label>Qty</label><input id="iq" type="number" value="1" min="0" step="any"></div><div><label>Rate ₹</label><input id="ip" type="number" min="0" step="any"></div></div>
+<button class="btn" onclick="addI()">+ Add</button>
+<div class="scroll"><table id="tb"></table></div>
+<button class="btn" onclick="doPrint()">🖨 Print</button> <button class="btn s" onclick="clr()">Notun bill</button></div>
+<div><h2>Preview</h2><div id="rc"></div></div></div></section>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const TABS=[['sig','Signature'],['unl','Unlock'],['j2p','JPG→PDF'],['cmp','Compress'],['pos','POS Bill']];
+TABS.forEach(([k,n],i)=>{const b=document.createElement('button');b.textContent=n;b.onclick=()=>show(k);b.id='b-'+k;$('nav').appendChild(b)});
+function show(k){TABS.forEach(([t])=>{$('t-'+t).classList.toggle('on',t===k);$('b-'+t).classList.toggle('on',t===k)});try{location.hash=k}catch(e){}}
+show((location.hash||'#sig').slice(1).replace(/[^a-z0-9]/g,'')&&$('t-'+location.hash.slice(1))?location.hash.slice(1):'sig');
+if(window.pdfjsLib)pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+const say=(id,t,c)=>{const e=$(id);e.hidden=false;e.className='out '+(c||'');e.textContent=t};
+async function save(name,blob){let d=null;try{d=await claude.use('downloads')}catch(e){}
+ if(!d){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();return true}
+ try{await d.save({filename:name,data:blob});return true}catch(e){return false}}
+const kb=n=>(n/1024).toFixed(0)+' KB';
+const file=id=>$(id).files[0];
+
+/* ---- Signature ---- */
+function derStrings(h){const b=new Uint8Array(h.length/2);for(let i=0;i<b.length;i++)b[i]=parseInt(h.substr(i*2,2),16);
+ const out=[];for(let i=0;i<b.length-8;i++){if(b[i]==6&&b[i+1]==3&&b[i+2]==0x55&&b[i+3]==4&&(b[i+4]==3||b[i+4]==10)){const l=b[i+6];if(l&&l<100&&[12,19,20,22].includes(b[i+5])){const s=String.fromCharCode(...b.slice(i+7,i+7+l));out.push((b[i+4]==3?'CN: ':'O: ')+s)}}}
+ return [...new Set(out)]}
+async function sig(){const f=file('sf');if(!f)return say('so','File select korun','er');
+ const t=new TextDecoder('latin1').decode(await f.arrayBuffer());const len=t.length;
+ const hexes=[...t.matchAll(/\/Contents\s*<([0-9A-Fa-f\s]{200,})>/g)].map(m=>m[1].replace(/\s/g,'').replace(/(00)+$/,''));
+ const lite=t.replace(/<[0-9A-Fa-f\s]{200,}>/g,'<..>');
+ const rs=[...lite.matchAll(/\/ByteRange\s*\[\s*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*\]/g)];
+ if(!rs.length)return say('so','❌ Kono digital signature paoa jayni. Ei PDF signed noy (ba signature image matro).','er');
+ let o=`✅ ${rs.length} ta digital signature paoa gese.\n`;
+ rs.forEach((m,i)=>{const w=lite.slice(Math.max(0,m.index-1500),m.index+1500);const g=k=>{const x=w.match(new RegExp('/'+k+'\\s*\\(([^)]*)\\)'));return x?x[1]:'—'};
+  const end=+m[3]+ +m[4];const full=Math.abs(end-len)<=2||end>=len-4;
+  const dt=g('M').replace(/^D:(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2}).*/,'$3-$2-$1 $4:$5:$6');
+  o+=`\n#${i+1}\nSignatory: ${g('Name')}\nSigned on: ${dt}\nReason: ${g('Reason')}  | Location: ${g('Location')}\nType: ${(w.match(/\/SubFilter\s*\/([\w.]+)/)||[])[1]||'—'}\nSigning-er pore file bodlayni? ${full?'✅ Haan (signature puro file cover kore)':'⚠️ Na — signing-er pore kichu add/change hoyeche'}\n`;
+  const c=hexes[i]?derStrings(hexes[i]):[];if(c.length)o+='Certificate: '+c.slice(0,6).join(' | ')+'\n'});
+ o+='\nℹ️ Ekhane structure o certificate-er naam check hoy. Puro cryptographic trust verify-er jonno Adobe Acrobat ba official UIDAI/Income Tax validator-e o dekhe nin.';
+ say('so',o,'')}
+
+/* ---- pdf.js helpers ---- */
+async function openPdf(f,pw){const data=new Uint8Array(await f.arrayBuffer());try{return await pdfjsLib.getDocument({data,password:pw||undefined}).promise}
+ catch(e){if(e.name==='PasswordException')throw new Error(e.code===2?'❌ Password bhul.':'🔒 Password dorkar — password field-e din.');throw e}}
+async function renderAll(pdf,scale){const cv=[];for(let i=1;i<=pdf.numPages;i++){const p=await pdf.getPage(i);const v=p.getViewport({scale});const c=document.createElement('canvas');c.width=v.width;c.height=v.height;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);await p.render({canvasContext:x,viewport:v}).promise;cv.push({c,w:v.width/scale,h:v.height/scale})}return cv}
+function build(cv,q){const J=window.jspdf.jsPDF;let d;cv.forEach((p,i)=>{const o=p.w>p.h?'l':'p';if(!i)d=new J({unit:'pt',format:[p.w,p.h],orientation:o,compress:true});else d.addPage([p.w,p.h],o);d.addImage(p.c.toDataURL('image/jpeg',q),'JPEG',0,0,p.w,p.h,undefined,'FAST')});return d.output('blob')}
+const est=(cv,q)=>cv.reduce((s,p)=>s+p.c.toDataURL('image/jpeg',q).length*.75,0);
+
+async function unl(){const f=file('uf');if(!f)return say('uo','PDF select korun','er');
+ try{say('uo','Kaj cholche…');const pdf=await openPdf(f,$('up').value.trim());const b=build(await renderAll(pdf,2),.92);
+  say('uo',`✅ Unlock hoyeche (${kb(b.size)}).`,'ok');await save('unlocked-'+f.name,b)}catch(e){say('uo',e.message,'er')}}
+
+async function cmp(){const f=file('cf');if(!f)return say('co','PDF select korun','er');
+ const T=Math.min(10000,Math.max(150,+$('ck').value||500))*1024;
+ try{say('co','Compress hocche, ektu opekkha korun…');const pdf=await openPdf(f,$('cp').value.trim());let best=null;
+  for(const s of [2,1.5,1.1,.8,.6,.45]){const cv=await renderAll(pdf,s);let lo=.15,hi=.92;
+   if(est(cv,lo)>T&&s!==.45)continue;
+   if(est(cv,hi)<=T)lo=hi;else for(let i=0;i<6;i++){const m=(lo+hi)/2;est(cv,m)<=T?lo=m:hi=m}
+   best=build(cv,lo);if(best.size<=T*1.05||s===.45)break}
+  const ok=best.size<=T*1.05;say('co',`${ok?'✅':'⚠️ Target-e pouchano gelo na, joto choto hoy korlam:'} ${kb(f.size)} → ${kb(best.size)}`,ok?'ok':'er');
+  await save('compressed-'+f.name,best)}catch(e){say('co',e.message,'er')}}
+
+/* ---- JPG to PDF ---- */
+async function j2p(){const fs=[...$('jf').files];if(!fs.length)return say('jo','Image select korun','er');
+ try{const J=window.jspdf.jsPDF;let d;for(let i=0;i<fs.length;i++){const bm=await createImageBitmap(fs[i]);const c=document.createElement('canvas');c.width=bm.width;c.height=bm.height;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(bm,0,0);const u=c.toDataURL('image/jpeg',.92);
+  let W,H,w,h,X=0,Y=0;if($('jz').value==='img'){W=w=bm.width;H=h=bm.height}else{const o=bm.width>bm.height;W=o?842:595;H=o?595:842;const r=Math.min((W-40)/bm.width,(H-40)/bm.height);w=bm.width*r;h=bm.height*r;X=(W-w)/2;Y=(H-h)/2}
+  const o=W>H?'l':'p';if(!i)d=new J({unit:'pt',format:[W,H],orientation:o,compress:true});else d.addPage([W,H],o);d.addImage(u,'JPEG',X,Y,w,h)}
+  const b=d.output('blob');say('jo',`✅ ${fs.length} ta image → PDF (${kb(b.size)})`,'ok');await save('images.pdf',b)}catch(e){say('jo',e.message,'er')}}
+
+/* ---- POS ---- */
+let items=[];const KEY='pos-cfg';
+try{const s=JSON.parse(localStorage.getItem(KEY)||'{}');Object.entries(s).forEach(([k,v])=>{if($(k))$(k).value=v})}catch(e){}
+const CF=['sn','sa','sg','sw','gp','dc','sf2','cu'];
+CF.forEach(k=>$(k).addEventListener('input',()=>{try{localStorage.setItem(KEY,JSON.stringify(Object.fromEntries(CF.filter(x=>x!=='cu'&&x!=='dc').map(x=>[x,$(x).value]))))}catch(e){}draw()}));
+const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const m=n=>n.toFixed(2);
+function addI(){const n=$('in').value.trim(),q=+$('iq').value,p=+$('ip').value;if(!n||!(q>0)||isNaN(p))return;items.push({n,q,p});$('in').value='';$('ip').value='';$('iq').value=1;$('in').focus();draw()}
+function del(i){items.splice(i,1);draw()}
+function clr(){items=[];$('cu').value='';$('dc').value=0;draw()}
+function draw(){
+ $('tb').innerHTML='<tr><th>Item</th><th>Qty</th><th>Rate</th><th></th></tr>'+items.map((x,i)=>`<tr><td>${esc(x.n)}</td><td>${x.q}</td><td>${m(x.p)}</td><td><button class="btn s" onclick="del(${i})">✕</button></td></tr>`).join('');
+ const sub=items.reduce((s,x)=>s+x.q*x.p,0),dc=Math.min(+$('dc').value||0,sub),gp=+$('gp').value||0,tx=(sub-dc)*gp/100,tot=sub-dc+tx;
+ const w=$('sw').value==='58'?'48mm':'72mm';const r=$('rc');r.style.width=w;
+ const d=new Date();
+ r.innerHTML=`<div class="c b" style="font-size:15px">${esc($('sn').value)}</div><div class="c">${esc($('sa').value).replace(/\n/g,'<br>')}</div>${$('sg').value?`<div class="c">GSTIN: ${esc($('sg').value)}</div>`:''}<hr>
+<div class="r"><span>${d.toLocaleDateString('en-IN')}</span><span>${d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span></div>${$('cu').value?`<div>Cust: ${esc($('cu').value)}</div>`:''}<hr>
+<div class="r b"><span>Item</span><span>Qty x Rate = Amt</span></div>
+${items.map(x=>`<div>${esc(x.n)}</div><div class="r"><span></span><span>${x.q} x ${m(x.p)} = ${m(x.q*x.p)}</span></div>`).join('')||'<div class="c">— item nei —</div>'}<hr>
+<div class="r"><span>Subtotal</span><span>${m(sub)}</span></div>${dc?`<div class="r"><span>Discount</span><span>-${m(dc)}</span></div>`:''}${gp?`<div class="r"><span>GST ${gp}%</span><span>${m(tx)}</span></div>`:''}
+<div class="r b" style="font-size:14px"><span>TOTAL</span><span>₹${m(tot)}</span></div><hr><div class="c">${esc($('sf2').value)}</div>`;
+ let st=document.getElementById('pgs');if(!st){st=document.createElement('style');st.id='pgs';document.head.appendChild(st)}
+ st.textContent=`@media print{#rc{width:${$('sw').value}mm!important}}`}
+function doPrint(){try{window.print()}catch(e){alert('Print ei view-e kaj korche na')}}
+$('in').addEventListener('keydown',e=>{if(e.key==='Enter')$('iq').focus()});$('ip').addEventListener('keydown',e=>{if(e.key==='Enter')addI()});
+draw();
+</script>
+</body>
+</html>
